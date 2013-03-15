@@ -1,13 +1,14 @@
 //
-//  SPoTFirstViewController.h
+//  RecentsTVC.h
 //  SPoT
 //
-//  Created by Owen Medd on 3/10/13.
+//  Created by Owen Medd on 3/13/13.
 //  Copyright (c) 2013 InterGuide Communications, Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
+#import "PhotosTVC.h"
 
-@interface SPoTFirstViewController : UIViewController
+@interface RecentsTVC : PhotosTVC
 
 @end

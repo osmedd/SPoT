@@ -1,5 +1,5 @@
 //
-//  SPoTSecondViewController.h
+//  CategoriesTVC.h
 //  SPoT
 //
 //  Created by Owen Medd on 3/10/13.
@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SPoTSecondViewController : UIViewController
+@interface CategoriesTVC : UITableViewController
 
 @end
