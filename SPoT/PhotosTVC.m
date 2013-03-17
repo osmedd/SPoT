@@ -11,10 +11,17 @@
 #import "SPoTPhotoDB.h"
 
 @interface PhotosTVC ()
-
+@property (strong, nonatomic) NSArray *titles;
 @end
 
 @implementation PhotosTVC
+
+- (void)setPhotos:(NSArray *)photos
+{
+    if (!_photos) {
+        _photos = [photos sortedArrayUsingDescriptors:[NSArray arrayWithObject:[[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES]]];
+    }
+}
 
 - (NSString *)reuseID
 {
