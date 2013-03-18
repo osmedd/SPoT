@@ -12,9 +12,16 @@
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (strong, nonatomic) UIImageView *imageView;
 @property (nonatomic) BOOL isZooming;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *titleBarButtonItem;
 @end
 
 @implementation ImageViewController
+
+- (void)setTitle:(NSString *)title
+{
+    super.title = title;
+    self.titleBarButtonItem.title = title;
+}
 
 // resets the image whenever the URL changes
 
@@ -123,6 +130,7 @@
     self.scrollView.maximumZoomScale = 5.0;
     self.scrollView.delegate = self;
     [self resetImage];
+    self.titleBarButtonItem.title = self.title;
 }
 
 @end

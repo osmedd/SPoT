@@ -10,8 +10,7 @@
 #import "FlickrFetcher.h"
 #import "SPoTPhotoDB.h"
 
-@interface PhotosTVC ()
-@property (strong, nonatomic) NSArray *titles;
+@interface PhotosTVC () <UISplitViewControllerDelegate>
 @end
 
 @implementation PhotosTVC
@@ -34,6 +33,18 @@
 }
 
 - (BOOL)registerSelectionInRecents
+{
+    return NO;
+}
+
+- (void)awakeFromNib
+{
+    self.splitViewController.delegate = self;
+}
+
+- (BOOL)splitViewController:(UISplitViewController *)svc
+   shouldHideViewController:(UIViewController *)vc
+              inOrientation:(UIInterfaceOrientation)orientation
 {
     return NO;
 }
