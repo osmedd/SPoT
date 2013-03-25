@@ -16,6 +16,11 @@
 
 @implementation RecentsTVC
 
+- (BOOL)sortPhotos
+{
+    return NO;
+}
+
 - (NSString *)reuseID
 {
     return @"RecentsCell";

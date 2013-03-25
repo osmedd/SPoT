@@ -14,6 +14,7 @@
 @property (readonly, nonatomic) NSString *reuseID; // abstract
 @property (readonly, nonatomic) NSString *segueID; // abstract
 @property (readonly, nonatomic) BOOL registerSelectionInRecents; // abstract
+@property (readonly, nonatomic) BOOL sortPhotos; // abstract
 
 - (NSString *)titleForRow:(NSUInteger)row;
 - (NSString *)subtitleForRow:(NSUInteger)row;

@@ -15,11 +15,16 @@
 
 @implementation PhotosTVC
 
+- (BOOL)sortPhotos
+{
+    return YES;
+}
+
 - (void)setPhotos:(NSArray *)photos
 {
-    if (!_photos) {
-        _photos = [photos sortedArrayUsingDescriptors:[NSArray arrayWithObject:[[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES]]];
-    }
+    _photos = (self.sortPhotos ? [photos sortedArrayUsingDescriptors:[NSArray arrayWithObject:[[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES]]]
+               : photos);
+    [self.tableView reloadData];
 }
 
 - (NSString *)reuseID
