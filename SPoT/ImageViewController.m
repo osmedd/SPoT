@@ -10,6 +10,7 @@
 
 @interface ImageViewController () <UIScrollViewDelegate>
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 @property (strong, nonatomic) UIImageView *imageView;
 @property (nonatomic) BOOL isZooming;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *titleBarButtonItem;
@@ -131,6 +132,17 @@
     self.scrollView.delegate = self;
     [self resetImage];
     self.titleBarButtonItem.title = self.title;
+    [self setSplitViewBarButtonItem:self.splitViewBarButtonItem];
+}
+
+- (void)setSplitViewBarButtonItem:(UIBarButtonItem *)barButtonItem
+{
+    UIToolbar *tb = [self toolbar];
+    NSMutableArray *toolbarItems = [tb.items mutableCopy];
+    if (_splitViewBarButtonItem) [toolbarItems removeObject:_splitViewBarButtonItem];
+    if (barButtonItem) [toolbarItems insertObject:barButtonItem atIndex:0];
+    tb.items = toolbarItems;
+    _splitViewBarButtonItem = barButtonItem;
 }
 
 @end

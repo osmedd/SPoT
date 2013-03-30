@@ -8,7 +8,7 @@
         <scene sceneID="WLK-sW-Chz">
             <objects>
                 <tabBarController definesPresentationContext="YES" id="naf-B8-IBG" sceneMemberID="viewController">
-                    <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
+                    <nil key="simulatedBottomBarMetrics"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" id="KAh-V5-aFK">
                         <rect key="frame" x="129" y="330" width="163" height="49"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
@@ -214,6 +214,7 @@
                     <connections>
                         <outlet property="scrollView" destination="Ri5-qd-NCr" id="OfX-En-iXe"/>
                         <outlet property="titleBarButtonItem" destination="DSz-XL-mcc" id="owz-mo-5AH"/>
+                        <outlet property="toolbar" destination="lfo-PG-tTF" id="Lcn-3T-JV3"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Rgq-MV-ag3" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -235,30 +236,6 @@
             <point key="canvasLocation" x="-1955" y="-477"/>
         </scene>
     </scenes>
-    <classes>
-        <class className="CategoriesTVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/CategoriesTVC.h"/>
-        </class>
-        <class className="ImageViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/ImageViewController.h"/>
-            <relationships>
-                <relationship kind="outlet" name="scrollView" candidateClass="UIScrollView"/>
-                <relationship kind="outlet" name="titleBarButtonItem" candidateClass="UIBarButtonItem"/>
-            </relationships>
-        </class>
-        <class className="NSLayoutConstraint" superclassName="NSObject">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
-        </class>
-        <class className="PhotosTVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/PhotosTVC.h"/>
-        </class>
-        <class className="RecentsTVC" superclassName="PhotosTVC">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RecentsTVC.h"/>
-        </class>
-        <class className="ShowCategoryPhotosTVC" superclassName="PhotosTVC">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/ShowCategoryPhotosTVC.h"/>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar" statusBarStyle="blackTranslucent"/>
         <simulatedOrientationMetrics key="orientation"/>
