@@ -13,11 +13,21 @@
 #define RECENT_PHOTO_KEY_IN_USER_DEFAULT @"RECENT_PHOTO"
 
 @interface SPoTPhotoDB()
+@property (strong, nonatomic) NSCache *photoCache;
 @property (strong, nonatomic) NSArray *photos;
 @property (strong, readwrite, nonatomic) NSMutableDictionary *categories;
 @end
 
 @implementation SPoTPhotoDB
+
+- (NSCache *)photoCache
+{
+    if (_photoCache == nil) {
+        _photoCache = [[NSCache alloc] init];
+        [_photoCache setCountLimit:5];
+    }
+    return _photoCache;
+}
 
 - (NSDictionary *)categories
 {
@@ -35,6 +45,7 @@
 {
     NSSet *ignoreCategories = [[NSSet alloc] initWithObjects:@"cs193pspot", @"portrait", @"landscape", nil];
     self.photos = [FlickrFetcher stanfordPhotos];
+    self.categories = nil;
     
     for (int i = 0; i < [self.photos count]; i++) {
         NSArray *tags = [self.photos[i][FLICKR_TAGS] componentsSeparatedByString:@" "];

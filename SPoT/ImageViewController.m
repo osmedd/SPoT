@@ -14,9 +14,16 @@
 @property (strong, nonatomic) UIImageView *imageView;
 @property (nonatomic) BOOL isZooming;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *titleBarButtonItem;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
+@property (nonatomic) unsigned long long int maxCacheSize;
 @end
 
 @implementation ImageViewController
+
+- (unsigned long long int)maxCacheSize
+{
+    return 10 * 1024 * 1024; // 10MB
+}
 
 - (void)setTitle:(NSString *)title
 {
@@ -32,6 +39,98 @@
     [self resetImage];
 }
 
+- (unsigned long long int)folderSize:(NSString *)folderPath {
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
+    NSArray *filesArray = [fileManager subpathsOfDirectoryAtPath:folderPath error:nil];
+    NSEnumerator *filesEnumerator = [filesArray objectEnumerator];
+    NSString *fileName;
+    NSError *attrError;
+    unsigned long long int fileSize = 0;
+    
+    while (fileName = [filesEnumerator nextObject]) {
+        NSDictionary *fileDictionary = [fileManager attributesOfItemAtPath:[folderPath stringByAppendingPathComponent:fileName] error:&attrError];
+        fileSize += [fileDictionary fileSize];
+    }
+    
+    NSLog(@"cache folder size: %lld", fileSize);
+    return fileSize;
+}
+
+- (void)pruneCacheDirectory:(NSURL *)cacheDirectoryURL
+{
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
+    NSArray *infoKeys = [NSArray arrayWithObjects:NSURLIsRegularFileKey, nil];
+    NSError *attrError;
+        
+    while ([self folderSize:cacheDirectoryURL.path] > self.maxCacheSize) {
+        NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtURL:cacheDirectoryURL includingPropertiesForKeys:infoKeys options:(NSDirectoryEnumerationSkipsHiddenFiles) errorHandler:^BOOL(NSURL *url, NSError *error) {
+            return YES;
+        }];
+        
+        NSDictionary *oldestFileAttr = nil;
+        NSURL *oldestFileURL = nil;
+        for (NSURL *url in enumerator) {
+            NSDictionary *fileAttr = [fileManager attributesOfItemAtPath:url.path error:&attrError];
+            
+            if (oldestFileAttr == nil) {
+                oldestFileURL = url;
+                oldestFileAttr = fileAttr;
+            } else {
+                if (fileAttr[NSFileModificationDate] < oldestFileAttr[NSFileModificationDate]) {
+                    oldestFileAttr = fileAttr;
+                    oldestFileURL = url;
+                }
+            }
+        }
+        
+        if (oldestFileURL) {
+            NSLog(@"removing cache file: %@", oldestFileURL.path);
+            [fileManager removeItemAtURL:oldestFileURL error:&attrError];
+        }
+    }
+}
+
+- (NSData *)getData:(NSURL *)imageURL
+{
+    NSData *imageData = nil;
+    NSURL *cacheDirectory = nil;
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
+    NSArray *urls = [fileManager URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask];
+    if ([urls count] > 0) {
+        cacheDirectory = urls[0];
+    }
+    NSURL *spotCacheDirectory = [cacheDirectory URLByAppendingPathComponent:@"SPoT"];
+    NSError *createErr;
+    if (![fileManager fileExistsAtPath:spotCacheDirectory.path]) {
+        if (![fileManager createDirectoryAtURL:spotCacheDirectory withIntermediateDirectories:YES attributes:nil error:&createErr]) {
+            NSLog(@"SPoT cache directory create failed: %@", createErr.localizedDescription);
+        }
+    }
+    
+    NSString *cacheFileName = [imageURL lastPathComponent];
+    NSLog(@"imageURL lastPathComponent: %@", cacheFileName);
+    NSURL *cacheFileURL = [spotCacheDirectory URLByAppendingPathComponent:cacheFileName];
+    
+    if (![fileManager fileExistsAtPath:cacheFileURL.path]) {
+        UIApplication *app = [UIApplication sharedApplication];
+        app.networkActivityIndicatorVisible = YES;
+        imageData = [[NSData alloc] initWithContentsOfURL:imageURL];
+        app.networkActivityIndicatorVisible = NO;
+        [imageData writeToURL:cacheFileURL atomically:YES];
+        NSLog(@"fetched image from %@", cacheFileURL.path);
+    } else {
+        imageData = [NSData dataWithContentsOfURL:cacheFileURL];
+        NSLog(@"used existing cache entry %@", cacheFileURL.path);
+    }
+    
+    // prune cache directory if necessary
+    if ([self folderSize:spotCacheDirectory.path] > self.maxCacheSize) {
+        [self pruneCacheDirectory:spotCacheDirectory];
+    }
+
+    return imageData;
+}
+
 // fetches the data from the URL
 // turns it into an image
 // adjusts the scroll view's content size to fit the image
@@ -39,20 +138,33 @@
 
 - (void)resetImage
 {
-    if (self.scrollView) {
+    if (self.scrollView && self.imageURL) {
         self.scrollView.contentSize = CGSizeZero;
         self.imageView.image = nil;
-        NSLog(@"resetImage scrollView bounds width %f height %f", self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
         
-        NSData *imageData = [[NSData alloc] initWithContentsOfURL:self.imageURL];
-        UIImage *image = [[UIImage alloc] initWithData:imageData];
-        if (image) {
-            self.scrollView.zoomScale = 1.0;
-            self.scrollView.contentSize = image.size;
-            self.imageView.image = image;
-            self.imageView.frame = CGRectMake(0, 0, image.size.width, image.size.height);
-            [self makeImageFitInScrollView];
-        }
+        [self.spinner startAnimating];
+        
+        dispatch_queue_t downloadQueue = dispatch_queue_create("image downloader", NULL);
+        dispatch_async(downloadQueue, ^{
+            NSData *imageData = [self getData:self.imageURL];
+            if (imageData) {
+                UIImage *image = [[UIImage alloc] initWithData:imageData];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (image) {
+                        self.scrollView.zoomScale = 1.0;
+                        self.scrollView.contentSize = image.size;
+                        self.imageView.image = image;
+                        self.imageView.frame = CGRectMake(0, 0, image.size.width, image.size.height);
+                        [self makeImageFitInScrollView];
+                    }
+                    [self.spinner stopAnimating];
+                });
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.spinner stopAnimating];
+                });
+            }
+        });
     }
 }
 
@@ -60,14 +172,14 @@
 {
     if (self.imageView.image) {
         // make image fill whole screen
-        NSLog(@"image width %f height %f", self.imageView.image.size.width, self.imageView.image.size.height);
-        NSLog(@"scrollview set? %@", (self.scrollView ? @"YES" : @"NO"));
-        NSLog(@"scrollView bounds width %f height %f", self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
+        //NSLog(@"image width %f height %f", self.imageView.image.size.width, self.imageView.image.size.height);
+        //NSLog(@"scrollview set? %@", (self.scrollView ? @"YES" : @"NO"));
+        //NSLog(@"scrollView bounds width %f height %f", self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
         self.scrollView.zoomScale = 1.0;
         self.imageView.frame = CGRectMake(0, 0, self.imageView.image.size.width, self.imageView.image.size.height);
         float xScale = self.scrollView.bounds.size.width / self.imageView.image.size.width;
         float yScale = self.scrollView.bounds.size.height / self.imageView.image.size.height;
-        NSLog(@"xScale %f yScale %f", xScale, yScale);
+        //NSLog(@"xScale %f yScale %f", xScale, yScale);
         CGRect zoomToRect;
         float xOffset = 0;
         float yOffset = 0;

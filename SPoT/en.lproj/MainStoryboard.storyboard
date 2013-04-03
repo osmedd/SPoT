@@ -59,6 +59,9 @@
                         </prototypes>
                     </tableView>
                     <navigationItem key="navigationItem" title="SPoT" id="Xah-1Q-thU"/>
+                    <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="43e-41-Yax">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </refreshControl>
                     <connections>
                         <outlet property="tableView" destination="dN5-bY-UGP" id="gjt-hu-sfl"/>
                     </connections>
@@ -120,19 +123,23 @@
                         <rect key="frame" x="0.0" y="64" width="320" height="455"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="h0k-qB-bu9"/>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QDg-3d-DXi"/>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="QDg-3d-DXi" firstAttribute="trailing" secondItem="AWA-qH-wGq" secondAttribute="trailing" type="default" id="B11-Xu-hUC"/>
+                            <constraint firstItem="h0k-qB-bu9" firstAttribute="leading" secondItem="AWA-qH-wGq" secondAttribute="leading" constant="141" id="D39-v9-NZX"/>
                             <constraint firstItem="QDg-3d-DXi" firstAttribute="top" secondItem="AWA-qH-wGq" secondAttribute="top" type="default" id="JQu-eh-tUZ"/>
                             <constraint firstItem="QDg-3d-DXi" firstAttribute="leading" secondItem="AWA-qH-wGq" secondAttribute="leading" type="default" id="VZV-MB-NO5"/>
                             <constraint firstItem="QDg-3d-DXi" firstAttribute="bottom" secondItem="AWA-qH-wGq" secondAttribute="bottom" type="default" id="jUd-7X-mUL"/>
+                            <constraint firstItem="h0k-qB-bu9" firstAttribute="centerY" secondItem="QDg-3d-DXi" secondAttribute="centerY" type="default" id="woz-ZH-p1e"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="KeQ-WZ-SF1"/>
                     <connections>
                         <outlet property="scrollView" destination="QDg-3d-DXi" id="xME-Va-A2C"/>
+                        <outlet property="spinner" destination="h0k-qB-bu9" id="XmY-1v-2iD"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="O3f-JL-UZH" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -219,6 +226,6 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="NEw-tc-Anz"/>
+        <segue reference="ay2-Yd-Lg6"/>
     </inferredMetricsTieBreakers>
 </document>

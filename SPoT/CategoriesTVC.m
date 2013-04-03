@@ -27,22 +27,26 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
     [self.photoDB loadStanfordPhotos];
     self.categories = [[self.photoDB.categories allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
     [self.tableView reloadData];
+    
+    [self.refreshControl addTarget:self action:@selector(refresh) forControlEvents:UIControlEventValueChanged];
 }
 
-- (void)didReceiveMemoryWarning
+- (IBAction)refresh
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    [self.refreshControl beginRefreshing];
+    dispatch_queue_t refreshQ = dispatch_queue_create("flickr reload", NULL);
+    dispatch_async(refreshQ, ^{
+        [self.photoDB loadStanfordPhotos];
+        self.categories = [[self.photoDB.categories allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView reloadData];
+            [self.refreshControl endRefreshing];
+        });
+    });
 }
 
 #pragma mark - Table view data source
